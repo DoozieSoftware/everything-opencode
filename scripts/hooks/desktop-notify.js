@@ -71,7 +71,12 @@ function notifyWindows(pwshPath, title, body) {
   const command = `Import-Module BurntToast; New-BurntToastNotification -Text '${safeTitle}', '${safeBody}'`;
   const result = spawnSync(pwshPath, ['-Command', command],
     { stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 });
-  return result.status === 0;
+  if (result.error || result.status !== 0) {
+    const stderr = typeof result.stderr?.toString === 'function' ? result.stderr.toString().trim() : '';
+    log(`[DesktopNotify] BurntToast failed (exit ${result.status}): ${result.error ? result.error.message : stderr}`);
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -105,20 +110,6 @@ function notifyMacOS(title, body) {
   const result = spawnSync('osascript', ['-e', script], { stdio: 'ignore', timeout: 5000 });
   if (result.error || result.status !== 0) {
     log(`[DesktopNotify] osascript failed: ${result.error ? result.error.message : `exit ${result.status}`}`);
-  }
-}
-
-/**
- * Send a Windows Toast notification via PowerShell BurntToast.
- * Used when running under WSL to show notification on Windows desktop.
- */
-function notifyWindows(pwshPath, title, body) {
-  const safeBody = body.replace(/'/g, "''");
-  const safeTitle = title.replace(/'/g, "''");
-  const command = `Import-Module BurntToast; New-BurntToastNotification -Text '${safeTitle}', '${safeBody}'`;
-  const result = spawnSync(pwshPath, ['-Command', command], { stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 });
-  if (result.error || result.status !== 0) {
-    log(`[DesktopNotify] BurntToast failed (exit ${result.status}): ${result.error ? result.error.message : result.stderr?.toString()}`);
   }
 }
 
