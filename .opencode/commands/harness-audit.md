@@ -1,3 +1,6 @@
+---
+description: ECC /harness-audit command
+---
 # Harness Audit Command
 
 Run a deterministic repository harness audit and return a prioritized scorecard.

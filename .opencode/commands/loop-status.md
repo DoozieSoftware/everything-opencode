@@ -1,3 +1,6 @@
+---
+description: ECC /loop-status command
+---
 # Loop Status Command
 
 Inspect active loop state, progress, and failure signals.
